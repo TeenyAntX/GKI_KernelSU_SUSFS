@@ -30,6 +30,13 @@ on:
       revision:
         required: false
         type: string
+      revision:  # 修订版本
+        required: false
+        type: string
+      version_string:  # 自定义输入版本参数2025.4.26
+        required: true
+        type: string
+        
 
 jobs:
   build-gki:
@@ -376,24 +383,50 @@ jobs:
             echo "CONFIG_KSU_SUSFS_SUS_SU=y" >> ./common/arch/arm64/configs/gki_defconfig
           fi
 
+      # - name: Change Kernel Name
+      #   run: |
+      #     cd "$CONFIG"
+      #     if [ -f "build/build.sh" ]; then
+      #         perl -pi -e 's/-dirty//' ./common/scripts/setlocalversion
+      #         perl -0777 -pi -e 's/(.*)(echo "\$res")/$1echo "\$res-Next-v\$KSUVER-SUSFS-v1.5.9-Wild"/s' ./common/scripts/setlocalversion
+      #         perl -0777 -pi -e 's/(.*)(echo "\$res")/$1echo "5.10.209-android12-9-00019-g4ea09a298bb4-ab12292661"/s' ./common/scripts/setlocalversion
+              
+      #         perl -pi -e 's{UTS_VERSION="\$\(echo \$UTS_VERSION \$CONFIG_FLAGS \$TIMESTAMP \| cut -b -\$UTS_LEN\)"}{UTS_VERSION="#1 SMP PREEMPT Wed Aug 28 22:16:09 UTC 2024"}' ./common/scripts/mkcompile_h
+      #     else
+      #         #Remove -maybe-dirty
+      #         perl -pi -e 's/-maybe-dirty//g' ./build/kernel/kleaf/impl/stamp.bzl
+              
+      #         #Set Kernel Name
+      #         echo "CONFIG_LOCALVERSION=\"-NEXT-v$KSUVER-SUSFS-v1.5.9-Wild\"" >> ./common/arch/arm64/configs/gki_defconfig
+
+      #         #Set Kernel Timestamp
+      #         perl -pi -e 's/build-timestamp = \$\(or \$\(KBUILD_BUILD_TIMESTAMP\), \$\(build-timestamp-auto\)\)/build-timestamp = "SWed Aug 28 22:16:09 UTC 2024"/' ./common/init/Makefile
+
+      #         #Remove Abi Exports and Error
+      #         rm -rf ./common/android/abi_gki_protected_exports_*
+      #         perl -pi -e 's/^\s*"protected_exports_list"\s*:\s*"android\/abi_gki_protected_exports_aarch64",\s*$//;' ./common/BUILD.bazel
+      #     fi
       - name: Change Kernel Name
         run: |
           cd "$CONFIG"
           if [ -f "build/build.sh" ]; then
+              # 1. 完全覆盖 setlocalversion 脚本的输出
               perl -pi -e 's/-dirty//' ./common/scripts/setlocalversion
-              perl -0777 -pi -e 's/(.*)(echo "\$res")/$1echo "\$res-Next-v\$KSUVER-SUSFS-v1.5.9-Wild"/s' ./common/scripts/setlocalversion
-              perl -pi -e 's{UTS_VERSION="\$\(echo \$UTS_VERSION \$CONFIG_FLAGS \$TIMESTAMP \| cut -b -\$UTS_LEN\)"}{UTS_VERSION="#1 SMP PREEMPT Sun Apr 20 04:20:00 UTC 2025"}' ./common/scripts/mkcompile_h
+              perl -0777 -pi -e 's/(.*)(echo "\$res")/$1echo "5.10.209-android12-9-00019-g4ea09a298bb4-ab12292661"/s' ./common/scripts/setlocalversion
+
+              # 2. 修改编译时间戳（可选）
+              perl -pi -e 's{UTS_VERSION="\$\(echo \$UTS_VERSION \$CONFIG_FLAGS \$TIMESTAMP \| cut -b -\$UTS_LEN\)"}{UTS_VERSION="#1 SMP PREEMPT Wed Aug 28 22:16:09 UTC 2024"}' ./common/scripts/mkcompile_h
           else
-              #Remove -maybe-dirty
+              # Bazel 构建系统的修改
               perl -pi -e 's/-maybe-dirty//g' ./build/kernel/kleaf/impl/stamp.bzl
               
-              #Set Kernel Name
-              echo "CONFIG_LOCALVERSION=\"-NEXT-v$KSUVER-SUSFS-v1.5.9-Wild\"" >> ./common/arch/arm64/configs/gki_defconfig
+              # 硬编码版本号到 defconfig
+              echo 'CONFIG_LOCALVERSION="-android12-9-00019-g4ea09a298bb4-ab12292661"' >> ./common/arch/arm64/configs/gki_defconfig
 
-              #Set Kernel Timestamp
-              perl -pi -e 's/build-timestamp = \$\(or \$\(KBUILD_BUILD_TIMESTAMP\), \$\(build-timestamp-auto\)\)/build-timestamp = "Sun Apr 20 04:20:00 UTC 2025"/' ./common/init/Makefile
+              # 硬编码时间戳-
+              perl -pi -e 's/build-timestamp = \$\(or \$\(KBUILD_BUILD_TIMESTAMP\), \$\(build-timestamp-auto\)\)/build-timestamp = "Wed Aug 28 22:16:09 UTC 2024"/' ./common/init/Makefile
 
-              #Remove Abi Exports and Error
+              # 清理 Abi 导出配置
               rm -rf ./common/android/abi_gki_protected_exports_*
               perl -pi -e 's/^\s*"protected_exports_list"\s*:\s*"android\/abi_gki_protected_exports_aarch64",\s*$//;' ./common/BUILD.bazel
           fi
