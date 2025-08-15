@@ -27,7 +27,7 @@ jobs:
         - sub_level: "209"  # 子版本号
           os_patch_level: "2024-05"  # 操作系统补丁级别
           revision: "r7"  # 修订版本
-          version_string: "-android12-9-00019-g4ea09a298bb4-ab12292661"
+          #version_string: "-android12-9-00019-g4ea09a298bb4-ab12292661"
 
     uses: ./.github/workflows/build.yml
     secrets: inherit
@@ -40,4 +40,4 @@ jobs:
       kernelsu_variant: ${{ inputs.kernelsu_variant }}
       kernelsu_branch: ${{ inputs.kernelsu_branch }}
       kernelsu_branch_other: ${{ inputs.kernelsu_branch_other || '' }}
-      version_string: ${{ matrix.version_string }}  # 传递参数 2025.08.09
+      #version_string: ${{ matrix.version_string }}  # 传递参数 2025.08.09
