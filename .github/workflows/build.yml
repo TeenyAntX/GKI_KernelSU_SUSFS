@@ -406,7 +406,7 @@ jobs:
           if [ -f "build/build.sh" ]; then
               # 1. 完全覆盖 setlocalversion 脚本的输出
               perl -pi -e 's/-dirty//' ./common/scripts/setlocalversion
-              perl -0777 -pi -e 's/(.*)(echo "\$res")/$1echo "5.10.209-android12-9-00019-g4ea09a298bb4-ab12292661"/s' ./common/scripts/setlocalversion
+              perl -0777 -pi -e 's/(.*)(echo "\$res")/$1echo "-android12-9-00019-g4ea09a298bb4-ab12292661"/s' ./common/scripts/setlocalversion
 
               # 2. 修改编译时间戳（可选）
               perl -pi -e 's{UTS_VERSION="\$\(echo \$UTS_VERSION \$CONFIG_FLAGS \$TIMESTAMP \| cut -b -\$UTS_LEN\)"}{UTS_VERSION="#1 SMP PREEMPT Wed Aug 28 22:16:09 UTC 2024"}' ./common/scripts/mkcompile_h
